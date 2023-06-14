@@ -1,6 +1,6 @@
 import { Handlers, HandlerContext } from "$fresh/server.ts";
 import { errors } from "$std/http/http_errors.ts";
-import { getForm, updateForm, PatchFormSchema, getFormEntries, createFormEntry } from "$utils/form.ts";
+import { getForm, getFormEntries, createFormEntry } from "$utils/kv.ts";
 
 function checkHost(ctx: HandlerContext, url: string) {
   if (url.includes('localhost')) return;

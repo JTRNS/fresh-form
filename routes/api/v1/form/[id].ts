@@ -1,6 +1,7 @@
 import { Handlers } from "$fresh/server.ts";
 import { errors } from "$std/http/http_errors.ts";
-import { getForm, updateForm, PatchFormSchema } from "$utils/form.ts";
+import { PatchFormSchema } from "$utils/form.ts";
+import { getForm, updateForm } from "$utils/kv.ts"
 
 function checkApiKey(req: Request, apiKey: string) {
   const auth = req.headers.get("Authorization");
