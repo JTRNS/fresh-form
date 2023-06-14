@@ -7,7 +7,7 @@ export default function NotFoundPage({ url }: UnknownPageProps) {
       <h1>404</h1>
       <p>not found</p>
       <picture>
-        <img src={asset('dino_404.png')} alt="Dinosaur detective looking for webpage with spyglass." />
+        <img src={asset('/dino_404.png')} alt="Dinosaur detective looking for webpage with spyglass." />
       </picture>
 
       <code>{url.href}</code>
