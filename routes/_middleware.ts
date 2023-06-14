@@ -15,7 +15,7 @@ export const handler: MiddlewareHandler[] = [
       return await ctx.next();
     } catch (e) {
       if (isHttpError(e)) {
-        const response = new Response(e.message, { status: e.status });
+        const response = new Response(e.message, { status: e.status, headers: e.headers });
         return response;
       } else {
         return new Response("Internal Server Error", { status: 500 });
