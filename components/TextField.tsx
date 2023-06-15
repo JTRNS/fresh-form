@@ -24,7 +24,7 @@ export default function TextFieldEditor({ field, onChange }: TextFieldProps) {
         {field.minLength !== undefined && <button onClick={() => {
           const { minLength, ...rest } = field;
           onChange(rest);
-        }}>reset</button>}
+        }}>undo min length</button>}
       </label>
       <label>
         max length:
@@ -32,7 +32,7 @@ export default function TextFieldEditor({ field, onChange }: TextFieldProps) {
         {field.maxLength !== undefined && <button onClick={() => {
           const { maxLength, ...rest } = field;
           onChange(rest);
-        }}>reset</button>}
+        }}>undo max length</button>}
       </label>
     </>
   );

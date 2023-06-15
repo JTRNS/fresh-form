@@ -9,8 +9,7 @@ import * as $2 from "./routes/_middleware.ts";
 import * as $3 from "./routes/api/v1/form/[id].ts";
 import * as $4 from "./routes/api/v1/form/index.ts";
 import * as $5 from "./routes/api/v1/submit/[id].ts";
-import * as $6 from "./routes/create.tsx";
-import * as $7 from "./routes/index.tsx";
+import * as $6 from "./routes/index.tsx";
 import * as $$0 from "./islands/FormBuilder.tsx";
 
 const manifest = {
@@ -21,8 +20,7 @@ const manifest = {
     "./routes/api/v1/form/[id].ts": $3,
     "./routes/api/v1/form/index.ts": $4,
     "./routes/api/v1/submit/[id].ts": $5,
-    "./routes/create.tsx": $6,
-    "./routes/index.tsx": $7,
+    "./routes/index.tsx": $6,
   },
   islands: {
     "./islands/FormBuilder.tsx": $$0,

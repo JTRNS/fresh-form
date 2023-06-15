@@ -20,10 +20,19 @@ export default function NumberFieldEditor({ field, onChange }: NumberFieldProps)
       <label>
         min:
         <input type="number" value={field.min} onInput={handleMinChange} />
+        {field.min !== undefined && <button onClick={() => {
+          const { min, ...rest } = field;
+          onChange(rest);
+        }}>undo min</button>}
       </label>
+
       <label>
         max:
         <input type="number" value={field.max} onInput={handleMaxChange} min={field?.min} />
+        {field.max !== undefined && <button onClick={() => {
+          const { max, ...rest } = field;
+          onChange(rest);
+        }}>undo max</button>}
       </label>
     </>
   );
