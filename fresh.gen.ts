@@ -11,8 +11,7 @@ import * as $4 from "./routes/api/v1/form/index.ts";
 import * as $5 from "./routes/api/v1/submit/[id].ts";
 import * as $6 from "./routes/create.tsx";
 import * as $7 from "./routes/index.tsx";
-import * as $$0 from "./islands/FieldEditor.tsx";
-import * as $$1 from "./islands/FormBuilder.tsx";
+import * as $$0 from "./islands/FormBuilder.tsx";
 
 const manifest = {
   routes: {
@@ -26,8 +25,7 @@ const manifest = {
     "./routes/index.tsx": $7,
   },
   islands: {
-    "./islands/FieldEditor.tsx": $$0,
-    "./islands/FormBuilder.tsx": $$1,
+    "./islands/FormBuilder.tsx": $$0,
   },
   baseUrl: import.meta.url,
   config,
