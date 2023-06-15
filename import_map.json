@@ -8,6 +8,7 @@
     "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.2.3",
     "$std/": "https://deno.land/std@0.191.0/",
     "$utils/": "./utils/",
+    "$kv/": "./kv/",
     "zod": "https://deno.land/x/zod@v3.19.1/mod.ts"
   }
 }
