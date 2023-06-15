@@ -1,20 +1,36 @@
 import { z } from 'zod';
-import { errors } from "$std/http/http_errors.ts";
 
-export const fieldTypes = ["text", "email", "url", "textarea", "checkbox", "radio", "select", "number", "range"] as const;
+export const fieldTypes = ["text", "email", "url", "textarea", "number", "range"] as const;
 
-export const InputFieldSchema = z.object({
+export const BaseInputFieldSchema = z.object({
   name: z.string(),
   label: z.string(),
   type: z.enum(fieldTypes).default("text"),
   required: z.boolean().default(false),
   placeholder: z.string().optional(),
-  options: z.array(z.string()).optional(),
-  multiple: z.boolean().optional(),
-  min: z.number().optional(),
-  max: z.number().optional(),
-  step: z.number().optional(),
 });
+
+export const TextFieldSchema = BaseInputFieldSchema.merge(
+  z.object({
+    type: z.enum(["text", "email", "url", "textarea"]).default("text"),
+    minLength: z.number().optional(),
+    maxLength: z.number().optional(),
+  })
+);
+
+export type TextField = z.infer<typeof TextFieldSchema>;
+
+export const NumberFieldSchema = BaseInputFieldSchema.merge(
+  z.object({
+    type: z.enum(["number", "range"]).default("number"),
+    min: z.number().optional(),
+    max: z.number().optional(),
+  })
+);
+
+export type NumberField = z.infer<typeof NumberFieldSchema>;
+
+export const InputFieldSchema = TextFieldSchema.or(NumberFieldSchema);
 
 export type InputField = z.infer<typeof InputFieldSchema>;
 
@@ -23,13 +39,13 @@ export const CreateFormSchema = z.object({
   url: z.string().url(),
 });
 
-function createTextFieldSchema(field: InputField) {
+function createTextFieldSchema(field: TextField) {
   let schema = z.string();
-  if (field.min) {
-    schema = schema.min(field.min);
+  if (field.minLength) {
+    schema = schema.min(field.minLength);
   }
-  if (field.max) {
-    schema = schema.max(field.max);
+  if (field.maxLength) {
+    schema = schema.max(field.maxLength);
   }
   if (field.type === "email") {
     schema = schema.email()
@@ -42,7 +58,7 @@ function createTextFieldSchema(field: InputField) {
     : z.object({ [field.name]: schema.optional() });
 }
 
-function createNumberFieldSchema(field: InputField) {
+function createNumberFieldSchema(field: NumberField) {
   let schema = z.number();
   if (field.min) {
     schema = schema.min(field.min);
@@ -55,34 +71,11 @@ function createNumberFieldSchema(field: InputField) {
     : z.object({ [field.name]: schema.optional() });
 }
 
-function createGroupFieldSchema(field: InputField) {
-  const str = 'options' in field ? z.string().refine((value) => field.options!.includes(value)) : z.string();
-  let schema = z.array(str);
-  if (field.min) {
-    schema = schema.min(field.min);
-  }
-  if (field.max) {
-    schema = schema.max(field.max);
-  }
-  return field.required
-    ? z.object({ [field.name]: schema })
-    : z.object({ [field.name]: schema.optional() });
-}
-
 function createFieldSchema(field: InputField) {
-  switch (field.type) {
-    case "text":
-    case "email":
-    case "url":
-      return createTextFieldSchema(field);
-    case "number":
-    case "range":
-      return createNumberFieldSchema(field);
-    case "radio":
-    case "select":
-      return createGroupFieldSchema(field);
-    default:
-      throw new Error(`Unknown field type: ${field.type}`);
+  if (isNumberField(field)) {
+    return createNumberFieldSchema(field);
+  } else {
+    return createTextFieldSchema(field);
   }
 }
 
@@ -91,7 +84,9 @@ export function createFormSchema(fields: InputField[]) {
   return schemas.reduce((acc, schema) => acc.merge(schema), z.object({}));
 }
 
-
+function isNumberField(field: InputField): field is NumberField {
+  return field.type === "number" || field.type === "range";
+}
 
 export type CreateFormParams = z.infer<typeof CreateFormSchema>;
 
@@ -99,8 +94,11 @@ export const PatchFormSchema = CreateFormSchema.partial();
 
 export type PatchFormParams = z.infer<typeof PatchFormSchema>;
 
-
-
+export function validateFormData(formData: FormData, fields: InputField[]) {
+  const parsedData = parseFormData(formData);
+  const schema = createFormSchema(fields);
+  return schema.safeParseAsync(parsedData);
+}
 
 export type FreshForm = {
   id: string;
@@ -110,8 +108,6 @@ export type FreshForm = {
 }
 
 export type FreshFormData = Record<string, FormDataEntryValue | FormDataEntryValue[]>;
-
-
 
 export function parseFormData(formData: FormData): Record<string, FormDataEntryValue | FormDataEntryValue[]> {
   const data: Record<string, FormDataEntryValue | FormDataEntryValue[]> = {};
@@ -129,9 +125,4 @@ export function parseFormData(formData: FormData): Record<string, FormDataEntryV
     }
   }
   return data;
-}
-
-/** Limit file size, defaults to 3 Megabytes (3.145.728 bytes) */
-export function limitFileSize(file: File, maxSize = 3 * 1024 * 1024) {
-  return file.size <= maxSize;
 }

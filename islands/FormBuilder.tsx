@@ -1,4 +1,4 @@
-import { fieldTypes, type InputField } from "$utils/form.ts";
+import { fieldTypes, FreshForm, type InputField } from "$utils/form.ts";
 import { useEffect, useState } from "preact/hooks";
 import FieldEditor from "../components/FieldEditor.tsx";
 import FormSnippet from "../components/FormSnippet.tsx";
@@ -6,6 +6,7 @@ import FormSnippet from "../components/FormSnippet.tsx";
 export default function FormBuilder(
   { initialFields }: { initialFields?: InputField[] },
 ) {
+  const [freshForm, setForm] = useState<FreshForm | null>(null);
   const [url, setUrl] = useState<string>("");
   const [fields, setFields] = useState<InputField[]>(
     initialFields ||
@@ -52,18 +53,19 @@ export default function FormBuilder(
   }
 
   async function createForm() {
-    const res = await fetch("/api/v1/form", {
+    if (!url) return;
+    const resp = await fetch("/api/v1/form", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ fields, url }),
     });
-    const json = await res.json();
-    console.log(json);
+    const data = await resp.json() as FreshForm;
+    setForm(data);
   }
 
-  return (
+  return freshForm === null ? (
     <div>
       <div class="form-builder">
         <form class="preview">
@@ -118,19 +120,37 @@ export default function FormBuilder(
           )}
         </form>
       </div>
+      <label for="url">Form submissions will originate from:</label>
       <input
         type="url"
         name="url"
         id="url"
         value={url}
+        placeholder="https://example.com"
         onChange={(e) => setUrl(e.currentTarget.value)}
+        required
       />
-      <button onClick={() => createForm()}>create form</button>
+      <button disabled={!url} onClick={() => createForm()}>create form</button>
 
-      <section>
-        <h2>Snippet</h2>
-        <FormSnippet fields={fields} />
-      </section>
+
     </div>
-  );
+  ) : (
+    <section>
+      <h2>Form Created</h2>
+      <p>
+        <strong>Your form is ready to use. You can now start sumbitting data to it.</strong> To start submitting data point the <code>action</code> attribute of your form to <code>{`https://fresh-form.deno.dev/api/v1/submit/${freshForm.id}`}</code>. You can only send data from {freshForm.url}.
+      </p>
+
+      <p>
+        Get access to your data by sending a GET request to <br /><code>{`https://fresh-form.deno.dev/api/v1/sumbit/${freshForm.id}`}</code><br /> with an Authorization header set to <code>Bearer {freshForm.apiKey}</code>.
+      </p>
+
+      <h3>Form Data</h3>
+      <pre>
+        <code>{JSON.stringify(freshForm, null, 2)}</code>
+      </pre>
+      <h3>Snippet</h3>
+      <FormSnippet fields={fields} />
+    </section>
+  )
 }

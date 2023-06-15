@@ -4,7 +4,7 @@ const kv = await Deno.openKv();
 
 const keyspace = "form";
 
-export async function createForm(form: CreateFormParams): Promise<Pick<FreshForm, "id" | "apiKey">> {
+export async function createForm(form: CreateFormParams): Promise<FreshForm> {
   const id = genFormId();
   // TODO: change to something more secure
   const apiKey = crypto.randomUUID();
@@ -16,7 +16,7 @@ export async function createForm(form: CreateFormParams): Promise<Pick<FreshForm
     // TODO: retry on duplicate form ID
     throw new TypeError("Generated duplicate form ID");
   }
-  return { id, apiKey };
+  return { ...form, id, apiKey };
 }
 
 export async function getForm(id: string) {
